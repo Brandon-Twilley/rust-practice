@@ -1,35 +1,51 @@
 mod linked_list;
 
 #[allow(while_true)]
+#[allow(unused_must_use)]
 fn main() {
-    let n1: *mut linked_list::Node = &mut linked_list::create_node(String::from("I"));
-    let n2: *mut linked_list::Node = &mut linked_list::create_node(String::from("am"));
-    let n3: *mut linked_list::Node = &mut linked_list::create_node(String::from("the"));
-    let n4: *mut linked_list::Node = &mut linked_list::create_node(String::from("eggman"));
-    let n5: *mut linked_list::Node = &mut linked_list::create_node(String::from("koo"));
-    let n6: *mut linked_list::Node = &mut linked_list::create_node(String::from("koo"));
-    let n7: *mut linked_list::Node = &mut linked_list::create_node(String::from("kachoo"));
+    // This is a
+    let n = |s: &str| linked_list::create_node(String::from(s));
+    let jn = |n1: *mut linked_list::Node, n2: *mut linked_list::Node| unsafe {
+        linked_list::join_nodes(n1, n2)
+    };
+    const LIST_SIZE: usize = 7;
 
+    let na: [*mut linked_list::Node; LIST_SIZE] = [
+        &mut n("I"),
+        &mut n("am"),
+        &mut n("the"),
+        &mut n("eggman"),
+        &mut n("koo"),
+        &mut n("koo"),
+        &mut n("kachoo"),
+    ];
+    // let v: [*mut linked_list::Node; LIST_SIZE];
+    let mut r: linked_list::Runner;
+
+    let mut v = na
+        .iter()
+        .enumerate()
+        .map(|(i, _)| {
+            jn(
+                na[if i == 0 { LIST_SIZE - 1 } else { i - 1 }],
+                na[i % LIST_SIZE],
+            )
+        })
+        .collect::<Vec<*mut linked_list::Node>>();
     unsafe {
-        linked_list::join_nodes(n1, n2);
-        linked_list::join_nodes(n2, n3);
-        linked_list::join_nodes(n3, n4);
-        linked_list::join_nodes(n4, n5);
-        linked_list::join_nodes(n5, n6);
-        linked_list::join_nodes(n6, n7);
+        (*v[LIST_SIZE - 1]).after = std::ptr::null_mut();
     }
 
-    let r = &mut linked_list::create_runner(n1);
+    r = linked_list::create_runner(v[0]);
+
     let mut next: bool = true;
     while true {
-        unsafe {
-            println!("{:?}", (*(*r).current_node).text);
-        }
         if next == false {
             break;
         } else {
             unsafe {
-                next = linked_list::step(r);
+                println!("{:?}", (*(r).current_node).text);
+                next = linked_list::step(&mut r);
             }
         }
     }

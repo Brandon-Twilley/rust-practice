@@ -1,7 +1,8 @@
+#[derive(Debug)]
 pub struct Node {
-    before: *mut Node,
+    pub before: *mut Node,
     pub text: std::string::String,
-    after: *mut Node,
+    pub after: *mut Node,
 }
 
 pub struct Runner {
@@ -22,9 +23,10 @@ pub fn create_runner(first_node: *mut Node) -> Runner {
     }
 }
 
-pub unsafe fn join_nodes(before: *mut Node, after: *mut Node) {
+pub unsafe fn join_nodes(before: *mut Node, after: *mut Node) -> *mut Node {
     (*before).after = after;
     (*after).before = before;
+    return after;
 }
 
 pub unsafe fn step(r: *mut Runner) -> bool {
